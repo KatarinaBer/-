@@ -50,8 +50,6 @@ markdown
 
 Готово! 🎉
 
-text
-
 ### 👨‍💻 Для разработчиков
 ```bash
 git clone https://github.com/ваш-логин/rybka-vpered.git
