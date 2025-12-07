@@ -24,7 +24,7 @@
 Откройте: https://KatarinaBer.github.io/rybka-vpered/
 
 ### Локально
-```bash
+
 git clone https://github.com/ваш-логин/rybka-vpered.git
 cd rybka-vpered
 open index.html
