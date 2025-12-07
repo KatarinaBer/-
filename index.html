@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рыбка Вперед - Морская игра</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        :root {
+            --primary-blue: #1a6bc4;
+            --secondary-blue: #0d4d8c;
+            --light-blue: #64b5f6;
+            --ocean-deep: #0a2a5e;
+            --coral: #ff6b6b;
+            --seaweed: #4caf50;
+            --sand: #ffcc80;
+            --fish-yellow: #ffeb3b;
+            --fish-orange: #ff9800;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            background: linear-gradient(180deg, var(--light-blue) 0%, var(--primary-blue) 30%, var(--ocean-deep) 100%);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 42, 94, 0.9);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 3px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--fish-yellow);
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, var(--fish-yellow), var(--fish-orange));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            padding: 10px 25px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .score-box {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .score-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--fish-yellow);
+        }
+
+        .best-score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4caf50;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-menu {
+            display: flex;
+            background: rgba(10, 42, 94, 0.8);
+            border-radius: 50px;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 500;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(100, 181, 246, 0.2);
+        }
+
+        .nav-btn.active {
+            background: var(--primary-blue);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Game Area */
+        .game-area {
+            background: rgba(10, 42, 94, 0.8);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 3px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .game-title {
+            font-family: 'Fredoka One', cursive;
+            color: var(--fish-yellow);
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.8rem;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #gameCanvas {
+            background: linear-gradient(180deg, #64b5f6 0%, #1a6bc4 100%);
+            border-radius: 10px;
+            border: 5px solid var(--ocean-deep);
+            display: block;
+            max-width: 100%;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-play {
+            background: linear-gradient(135deg, var(--seaweed), #2e7d32);
+            color: white;
+        }
+
+        .btn-pause {
+            background: linear-gradient(135deg, var(--sand), #f57c00);
+            color: white;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+        }
+
+        .btn-sound {
+            background: linear-gradient(135deg, var(--coral), #c62828);
+            color: white;
+        }
+
+        /* Sidebar Content */
+        .sidebar-content {
+            display: none;
+        }
+
+        .sidebar-content.active {
+            display: block;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: rgba(10, 42, 94, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .instructions h2 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--fish-yellow);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .instructions-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .instructions-list li {
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions-list li:last-child {
+            border-bottom: none;
+        }
+
+        .instruction-icon {
+            color: var(--light-blue);
+            font-size: 1.2rem;
+            min-width: 24px;
+        }
+
+        /* About Game */
+        .about-game {
+            background: rgba(10, 42, 94, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .about-game h2 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--fish-yellow);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .about-game p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature {
+            background: rgba(100, 181, 246, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .feature i {
+            font-size: 1.5rem;
+            color: var(--fish-yellow);
+            margin-bottom: 10px;
+        }
+
+        /* Difficulty */
+        .difficulty-selector {
+            background: rgba(10, 42, 94, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .difficulty-selector h3 {
+            color: var(--fish-yellow);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .difficulty-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .diff-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 80px;
+            color: white;
+        }
+
+        .diff-btn:hover {
+            background: rgba(100, 181, 246, 0.3);
+        }
+
+        .diff-btn.active {
+            background: var(--seaweed);
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 42, 94, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-top: 20px;
+            border: 3px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .contact-info {
+            margin-bottom: 20px;
+        }
+
+        .contact-info h3 {
+            color: var(--fish-yellow);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .telegram-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #0088cc, #005c8a);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .telegram-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--light-blue);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--fish-yellow);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Game Over Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--ocean-deep), var(--secondary-blue));
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            animation: popup 0.5s ease-out;
+            border: 3px solid var(--light-blue);
+        }
+
+        @keyframes popup {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal h2 {
+            color: var(--fish-yellow);
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--coral);
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .modal-best {
+            font-size: 1.5rem;
+            color: var(--light-blue);
+            margin-bottom: 30px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Marine decorations */
+        .marine-decoration {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: float-up linear infinite;
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-100px) scale(1.2); opacity: 0; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .difficulty-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Marine background elements -->
+    <div id="marineBackground"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-fish"></i>
+                </div>
+                <h1>Рыбка Вперед</h1>
+            </div>
+            
+            <div class="score-container">
+                <div class="score-box">
+                    <div class="score-label">ТЕКУЩИЙ СЧЕТ</div>
+                    <div class="score-value" id="currentScore">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-label">ЛУЧШИЙ РЕЗУЛЬТАТ</div>
+                    <div class="best-score-value" id="bestScore">0</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav>
+            <div class="nav-menu">
+                <button class="nav-btn active" data-tab="instructions">
+                    <i class="fas fa-info-circle"></i> Как играть
+                </button>
+                <button class="nav-btn" data-tab="about">
+                    <i class="fas fa-water"></i> Об игре
+                </button>
+                <button class="nav-btn" data-tab="difficulty">
+                    <i class="fas fa-sliders-h"></i> Сложность
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Game Area -->
+            <div class="game-area">
+                <h2 class="game-title">Помоги рыбке проплыть через коралловый риф!</h2>
+                <canvas id="gameCanvas" width="800" height="500"></canvas>
+                
+                <div class="game-controls">
+                    <button class="btn btn-play" id="playBtn">
+                        <i class="fas fa-play"></i> Начать игру
+                    </button>
+                    <button class="btn btn-pause" id="pauseBtn">
+                        <i class="fas fa-pause"></i> Пауза
+                    </button>
+                    <button class="btn btn-restart" id="restartBtn">
+                        <i class="fas fa-redo"></i> Заново
+                    </button>
+                    <button class="btn btn-sound" id="soundBtn">
+                        <i class="fas fa-volume-up"></i> Звук Вкл
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar Content -->
+            <div class="sidebar-content active" id="instructionsContent">
+                <div class="instructions">
+                    <h2>Как играть</h2>
+                    <ul class="instructions-list">
+                        <li>
+                            <i class="fas fa-mouse-pointer instruction-icon"></i>
+                            <span><strong>Кликни</strong> на экран или нажми <strong>ПРОБЕЛ</strong> чтобы рыбка плыла вверх</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-arrows-alt-v instruction-icon"></i>
+                            <span>Управляй глубиной плавания, проплывая между кораллами</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-gem instruction-icon"></i>
+                            <span>Собирай жемчуг для дополнительных очков</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-tachometer-alt instruction-icon"></i>
+                            <span>За каждую пройденную пару кораллов ты получаешь 1 очко</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-skull-crossbones instruction-icon"></i>
+                            <span>Игра заканчивается, если рыбка ударится о коралл или морское дно</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-trophy instruction-icon"></i>
+                            <span>Попробуй побить свой рекорд в морских глубинах!</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-content" id="aboutContent">
+                <div class="about-game">
+                    <h2>Об игре "Рыбка Вперед"</h2>
+                    <p>Добро пожаловать в удивительный подводный мир! "Рыбка Вперед" - это захватывающая аркадная игра, где вы управляете маленькой, но отважной рыбкой, которая путешествует через коралловый риф.</p>
+                    
+                    <p>Игра разработана с любовью к морской тематике и предлагает уникальный геймплей с красивой графикой и плавной анимацией. В отличие от классических игр в стиле Flappy Bird, здесь вы встретите разнообразные морские препятствия и сможете собирать жемчуг для дополнительных очков.</p>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-palette"></i>
+                            <p>Красивая морская графика</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-sliders-h"></i>
+                            <p>Несколько уровней сложности</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-gem"></i>
+                            <p>Система сбора жемчуга</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-trophy"></i>
+                            <p>Таблица рекордов</p>
+                        </div>
+                    </div>
+                    
+                    <p>Игра полностью адаптирована для всех устройств и работает прямо в вашем браузере. Не требуется установка дополнительного программного обеспечения!</p>
+                    
+                    <p>Версия: 1.0.0<br>Дата выпуска: Октябрь 2023</p>
+                </div>
+            </div>
+
+            <div class="sidebar-content" id="difficultyContent">
+                <div class="difficulty-selector">
+                    <h3>Уровень сложности</h3>
+                    <div class="difficulty-options">
+                        <button class="diff-btn active" data-difficulty="easy">
+                            <i class="fas fa-water"></i> Легкий
+                        </button>
+                        <button class="diff-btn" data-difficulty="medium">
+                            <i class="fas fa-wind"></i> Средний
+                        </button>
+                        <button class="diff-btn" data-difficulty="hard">
+                            <i class="fas fa-hurricane"></i> Сложный
+                        </button>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
+                        На сложном уровне появляются морские течения, которые влияют на движение рыбки!
+                    </p>
+                </div>
+                
+                <div class="instructions" style="margin-top: 20px;">
+                    <h3>Особенности уровней</h3>
+                    <ul class="instructions-list">
+                        <li><i class="fas fa-fish instruction-icon"></i><span><strong>Легкий:</strong> Медленные кораллы, много жемчуга</span></li>
+                        <li><i class="fas fa-fish instruction-icon"></i><span><strong>Средний:</strong> Более узкие проходы, меньше жемчуга</span></li>
+                        <li><i class="fas fa-fish instruction-icon"></i><span><strong>Сложный:</strong> Морские течения, быстрое движение</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="contact-info">
+                <h3>Свяжитесь с разработчиком</h3>
+                <p>Есть вопросы или предложения по игре? Напишите мне в Telegram!</p>
+                <a href="https://t.me/katarinaber" class="telegram-link" target="_blank">
+                    <i class="fab fa-telegram-plane"></i> @katarinaber
+                </a>
+            </div>
+            
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-vk"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 "Рыбка Вперед". Все права защищены.<br>
+                Игра создана для развлечения и развития реакции.<br>
+                Рекомендуется играть не более 30 минут подряд.
+            </div>
+        </footer>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2>Игра окончена!</h2>
+            <p>Рыбка не смогла проплыть дальше...</p>
+            <div class="modal-score" id="finalScore">0</div>
+            <div class="modal-best" id="finalBestScore">Лучший результат: 0</div>
+            <div class="modal-buttons">
+                <button class="btn btn-play" id="modalPlayBtn">
+                    <i class="fas fa-play"></i> Играть снова
+                </button>
+                <button class="btn btn-restart" id="modalRestartBtn">
+                    <i class="fas fa-redo"></i> Новая игра
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Игровые переменные
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const currentScoreElement = document.getElementById('currentScore');
+        const bestScoreElement = document.getElementById('bestScore');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const soundBtn = document.getElementById('soundBtn');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const finalScoreElement = document.getElementById('finalScore');
+        const finalBestScoreElement = document.getElementById('finalBestScore');
+        const modalPlayBtn = document.getElementById('modalPlayBtn');
+        const modalRestartBtn = document.getElementById('modalRestartBtn');
+        const diffButtons = document.querySelectorAll('.diff-btn');
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const tabContents = document.querySelectorAll('.sidebar-content');
+        const marineBackground = document.getElementById('marineBackground');
+
+        // Настройки игры
+        let game = {
+            running: false,
+            paused: false,
+            sound: true,
+            score: 0,
+            pearlsCollected: 0,
+            bestScore: localStorage.getItem('fishBestScore') || 0,
+            difficulty: 'easy',
+            speed: 3,
+            gravity: 0.4,
+            jumpStrength: -9,
+            coralGap: 200,
+            coralWidth: 80,
+            currentEffect: 0 // Эффект течения (для сложного уровня)
+        };
+
+        // Настройки рыбки
+        let fish = {
+            x: 150,
+            y: canvas.height / 2,
+            width: 60,
+            height: 30,
+            velocity: 0,
+            rotation: 0,
+            color: '#FFEB3B',
+            tailPosition: 0,
+            eyePosition: 0
+        };
+
+        // Кораллы
+        let corals = [];
+        
+        // Жемчуг
+        let pearls = [];
+        
+        // Анимация
+        let animationFrame = 0;
+
+        // Создание пузырьков для фона
+        function createBubbles() {
+            marineBackground.innerHTML = '';
+            const bubbleCount = Math.min(30, Math.floor(window.innerWidth / 50));
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                
+                const size = Math.random() * 30 + 10;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 15 + 10;
+                const delay = Math.random() * 10;
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${left}%`;
+                bubble.style.animationDuration = `${duration}s`;
+                bubble.style.animationDelay = `${delay}s`;
+                
+                marineBackground.appendChild(bubble);
+            }
+        }
+
+        // Инициализация игры
+        function initGame() {
+            // Сброс параметров
+            game.score = 0;
+            game.pearlsCollected = 0;
+            fish.y = canvas.height / 2;
+            fish.velocity = 0;
+            fish.rotation = 0;
+            corals = [];
+            pearls = [];
+            game.currentEffect = 0;
+            
+            // Обновление отображения счета
+            updateScoreDisplay();
+            
+            // Создаем первый коралл
+            addCoral();
+            
+            // Запускаем игру если она не запущена
+            if (!game.running) {
+                game.running = true;
+                game.paused = false;
+                gameLoop();
+            }
+        }
+
+        // Создание коралла
+        function addCoral() {
+            // Минимальная и максимальная высота верхнего коралла
+            const minHeight = 80;
+            const maxHeight = canvas.height - game.coralGap - minHeight - 50;
+            const topHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
+            
+            // Разные цвета кораллов
+            const coralColors = [
+                '#FF6B6B', // Красный коралл
+                '#FF8E53', // Оранжевый коралл
+                '#4ECDC4', // Бирюзовый коралл
+                '#45B7D1', // Голубой коралл
+                '#96CEB4'  // Зеленый коралл
+            ];
+            
+            const color = coralColors[Math.floor(Math.random() * coralColors.length)];
+            
+            corals.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                passed: false,
+                color: color,
+                hasPearl: Math.random() > 0.6 // 40% шанс что будет жемчуг
+            });
+            
+            // Добавляем жемчуг если нужно
+            if (corals[corals.length-1].hasPearl) {
+                addPearl(canvas.width + game.coralWidth/2, topHeight + game.coralGap/2);
+            }
+        }
+
+        // Создание жемчужины
+        function addPearl(x, y) {
+            pearls.push({
+                x: x,
+                y: y,
+                radius: 10,
+                collected: false,
+                color: '#FFFFFF',
+                glow: 0
+            });
+        }
+
+        // Отрисовка рыбки
+        function drawFish() {
+            animationFrame += 0.2;
+            fish.tailPosition = Math.sin(animationFrame) * 5;
+            fish.eyePosition = Math.sin(animationFrame * 2) * 2;
+            
+            // Сохраняем контекст для вращения
+            ctx.save();
+            
+            // Перемещаем точку вращения в центр рыбки
+            ctx.translate(fish.x + fish.width / 2, fish.y + fish.height / 2);
+            
+            // Вращаем рыбку в зависимости от скорости
+            fish.rotation = fish.velocity * 0.02;
+            ctx.rotate(fish.rotation);
+            
+            // Тело рыбки
+            const bodyGradient = ctx.createLinearGradient(-fish.width/2, -fish.height/2, fish.width/2, fish.height/2);
+            bodyGradient.addColorStop(0, '#FFEB3B');
+            bodyGradient.addColorStop(1, '#FF9800');
+            
+            ctx.fillStyle = bodyGradient;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, fish.width / 2, fish.height / 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Хвост
+            ctx.fillStyle = '#FF9800';
+            ctx.beginPath();
+            ctx.moveTo(-fish.width/2, 0);
+            ctx.quadraticCurveTo(-fish.width/2 - 30, fish.tailPosition, -fish.width/2 - 15, 0);
+            ctx.quadraticCurveTo(-fish.width/2 - 30, -fish.tailPosition, -fish.width/2, 0);
+            ctx.fill();
+            
+            // Глаз
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(fish.width/4, fish.eyePosition, fish.height/4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Зрачок
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(fish.width/4 + 2, fish.eyePosition, fish.height/8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Плавники
+            ctx.fillStyle = '#FF9800';
+            ctx.beginPath();
+            ctx.moveTo(-fish.width/6, -fish.height/2);
+            ctx.quadraticCurveTo(0, -fish.height/2 - 10, fish.width/6, -fish.height/3);
+            ctx.lineTo(-fish.width/6, -fish.height/2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(-fish.width/6, fish.height/2);
+            ctx.quadraticCurveTo(0, fish.height/2 + 10, fish.width/6, fish.height/3);
+            ctx.lineTo(-fish.width/6, fish.height/2);
+            ctx.fill();
+            
+            // Рот
+            ctx.fillStyle = '#FF5722';
+            ctx.beginPath();
+            ctx.arc(fish.width/2 - 5, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // Отрисовка кораллов
+        function drawCorals() {
+            for (let coral of corals) {
+                // Верхний коралл
+                drawCoral(coral.x, 0, game.coralWidth, coral.topHeight, coral.color);
+                
+                // Нижний коралл
+                drawCoral(coral.x, coral.topHeight + game.coralGap, game.coralWidth, canvas.height, coral.color);
+            }
+        }
+
+        // Отрисовка одного коралла с деталями
+        function drawCoral(x, y, width, height, color) {
+            // Основная часть коралла
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+            
+            // Детали коралла
+            ctx.fillStyle = adjustColor(color, -20);
+            const detailCount = Math.floor(height / 20);
+            for (let i = 0; i < detailCount; i++) {
+                const detailY = y + i * 20;
+                const detailWidth = width * (0.7 + Math.sin(i) * 0.3);
+                ctx.fillRect(x + (width - detailWidth) / 2, detailY, detailWidth, 10);
+            }
+            
+            // Верхняя часть коралла
+            if (y === 0) {
+                ctx.fillStyle = adjustColor(color, -30);
+                ctx.beginPath();
+                ctx.ellipse(x + width/2, y + height, width/2, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Отрисовка жемчуга
+        function drawPearls() {
+            for (let pearl of pearls) {
+                if (pearl.collected) continue;
+                
+                pearl.glow = (pearl.glow + 0.1) % (Math.PI * 2);
+                const glowIntensity = Math.sin(pearl.glow) * 0.3 + 0.7;
+                
+                // Свечение жемчуга
+                const glowGradient = ctx.createRadialGradient(
+                    pearl.x, pearl.y, 0,
+                    pearl.x, pearl.y, pearl.radius * 2
+                );
+                glowGradient.addColorStop(0, `rgba(255, 255, 255, ${glowIntensity})`);
+                glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                ctx.fillStyle = glowGradient;
+                ctx.beginPath();
+                ctx.arc(pearl.x, pearl.y, pearl.radius * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Сам жемчуг
+                const pearlGradient = ctx.createRadialGradient(
+                    pearl.x - 3, pearl.y - 3, 0,
+                    pearl.x, pearl.y, pearl.radius
+                );
+                pearlGradient.addColorStop(0, '#FFFFFF');
+                pearlGradient.addColorStop(1, '#E0E0E0');
+                
+                ctx.fillStyle = pearlGradient;
+                ctx.beginPath();
+                ctx.arc(pearl.x, pearl.y, pearl.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Блеск на жемчуге
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(pearl.x - pearl.radius/3, pearl.y - pearl.radius/3, pearl.radius/3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Изменение цвета
+        function adjustColor(color, amount) {
+            let usePound = false;
+            if (color[0] === "#") {
+                color = color.slice(1);
+                usePound = true;
+            }
+            
+            const num = parseInt(color, 16);
+            let r = (num >> 16) + amount;
+            let g = ((num >> 8) & 0x00FF) + amount;
+            let b = (num & 0x0000FF) + amount;
+            
+            r = Math.min(Math.max(0, r), 255);
+            g = Math.min(Math.max(0, g), 255);
+            b = Math.min(Math.max(0, b), 255);
+            
+            return (usePound ? "#" : "") + (b | (g << 8) | (r << 16)).toString(16).padStart(6, '0');
+        }
+
+        // Отрисовка фона
+        function drawBackground() {
+            // Градиент моря
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#64b5f6');
+            gradient.addColorStop(0.7, '#1a6bc4');
+            gradient.addColorStop(1, '#0a2a5e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Морское дно
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+            
+            // Песок на дне
+            ctx.fillStyle = '#FFCC80';
+            for (let i = 0; i < canvas.width; i += 20) {
+                const height = 5 + Math.sin(i * 0.1 + animationFrame * 0.5) * 3;
+                ctx.fillRect(i, canvas.height - 40, 15, height);
+            }
+            
+            // Водоросли
+            ctx.fillStyle = '#4CAF50';
+            for (let i = 0; i < 5; i++) {
+                const x = (canvas.width / 5) * i + 30;
+                drawSeaweed(x, canvas.height - 40, 10, 30);
+            }
+            
+            // Пузырьки в воде
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            for (let i = 0; i < 10; i++) {
+                const x = (animationFrame * 10 + i * 50) % canvas.width;
+                const y = (canvas.height - 100 - i * 20 + animationFrame * 5) % canvas.height;
+                const size = 3 + Math.sin(animationFrame + i) * 2;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Отрисовка водоросли
+        function drawSeaweed(x, y, width, height) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            for (let i = 0; i <= height; i += 5) {
+                const sway = Math.sin(animationFrame + i * 0.1) * 10;
+                ctx.lineTo(x + sway, y - i);
+            }
+            ctx.lineWidth = width;
+            ctx.strokeStyle = '#4CAF50';
+            ctx.stroke();
+        }
+
+        // Обновление позиций объектов
+        function update() {
+            if (game.paused || !game.running) return;
+            
+            // Эффект течения на сложном уровне
+            if (game.difficulty === 'hard') {
+                game.currentEffect = Math.sin(animationFrame * 0.05) * 0.5;
+            } else {
+                game.currentEffect = 0;
+            }
+            
+            // Обновление рыбки
+            fish.velocity += game.gravity;
+            fish.y += fish.velocity + game.currentEffect;
+            
+            // Проверка столкновения с дном
+            if (fish.y + fish.height / 2 >= canvas.height - 40) {
+                gameOver();
+                return;
+            }
+            
+            // Проверка столкновения с поверхностью
+            if (fish.y - fish.height / 2 <= 0) {
+                fish.y = fish.height / 2;
+                fish.velocity = 0;
+            }
+            
+            // Обновление кораллов
+            for (let i = corals.length - 1; i >= 0; i--) {
+                corals[i].x -= game.speed;
+                
+                // Проверка прохождения коралла
+                if (!corals[i].passed && corals[i].x + game.coralWidth < fish.x) {
+                    corals[i].passed = true;
+                    game.score++;
+                    updateScoreDisplay();
+                    
+                    // Звук счета если звук включен
+                    if (game.sound) {
+                        playScoreSound();
+                    }
+                }
+                
+                // Проверка столкновения с кораллом
+                if (
+                    fish.x + fish.width / 2 > corals[i].x &&
+                    fish.x - fish.width / 2 < corals[i].x + game.coralWidth &&
+                    (fish.y - fish.height / 2 < corals[i].topHeight ||
+                     fish.y + fish.height / 2 > corals[i].topHeight + game.coralGap)
+                ) {
+                    gameOver();
+                    return;
+                }
+                
+                // Удаление кораллов за пределами экрана
+                if (corals[i].x < -game.coralWidth) {
+                    corals.splice(i, 1);
+                }
+            }
+            
+            // Обновление жемчуга
+            for (let i = pearls.length - 1; i >= 0; i--) {
+                pearls[i].x -= game.speed;
+                
+                // Проверка сбора жемчуга
+                if (!pearls[i].collected) {
+                    const dx = fish.x - pearls[i].x;
+                    const dy = fish.y - pearls[i].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < fish.width / 2 + pearls[i].radius) {
+                        pearls[i].collected = true;
+                        game.score += 3;
+                        game.pearlsCollected++;
+                        updateScoreDisplay();
+                        
+                        if (game.sound) {
+                            playPearlSound();
+                        }
+                    }
+                }
+                
+                // Удаление жемчуга за пределами экрана
+                if (pearls[i].x < -pearls[i].radius * 2) {
+                    pearls.splice(i, 1);
+                }
+            }
+            
+            // Добавление новых кораллов
+            if (corals.length === 0 || corals[corals.length - 1].x < canvas.width - 300) {
+                addCoral();
+            }
+        }
+
+        // Основной игровой цикл
+        function gameLoop() {
+            // Очистка canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Отрисовка фона
+            drawBackground();
+            
+            // Обновление игровой логики
+            update();
+            
+            // Отрисовка объектов
+            drawCorals();
+            drawPearls();
+            drawFish();
+            
+            // Отрисовка счета на canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(10, 10, 200, 70);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Fredoka One, cursive';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Счет: ${game.score}`, 20, 40);
+            ctx.fillText(`Жемчуг: ${game.pearlsCollected}`, 20, 70);
+            
+            // Отрисовка эффекта течения
+            if (game.difficulty === 'hard' && Math.abs(game.currentEffect) > 0.1) {
+                ctx.fillStyle = 'rgba(100, 181, 246, 0.3)';
+                ctx.font = '16px Rubik, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(game.currentEffect > 0 ? '↓ Течение вниз' : '↑ Течение вверх', canvas.width / 2, 40);
+            }
+            
+            // Отрисовка паузы если игра на паузе
+            if (game.paused && game.running) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 48px Fredoka One, cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('ПАУЗА', canvas.width / 2, canvas.height / 2);
+                
+                ctx.font = '24px Rubik, sans-serif';
+                ctx.fillText('Нажмите "Продолжить" чтобы возобновить игру', canvas.width / 2, canvas.height / 2 + 50);
+            }
+            
+            // Продолжаем анимацию если игра запущена
+            if (game.running) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Конец игры
+        function gameOver() {
+            game.running = false;
+            
+            // Обновление лучшего счета
+            if (game.score > game.bestScore) {
+                game.bestScore = game.score;
+                localStorage.setItem('fishBestScore', game.bestScore);
+            }
+            
+            // Показ модального окна
+            finalScoreElement.textContent = game.score;
+            finalBestScoreElement.textContent = `Лучший результат: ${game.bestScore}`;
+            gameOverModal.style.display = 'flex';
+            
+            // Звук окончания игры если звук включен
+            if (game.sound) {
+                playGameOverSound();
+            }
+        }
+
+        // Обновление отображения счета
+        function updateScoreDisplay() {
+            currentScoreElement.textContent = game.score;
+            bestScoreElement.textContent = game.bestScore;
+        }
+
+        // Прыжок рыбки
+        function jump() {
+            if (!game.running || game.paused) return;
+            
+            fish.velocity = game.jumpStrength;
+            
+            // Звук прыжка если звук включен
+            if (game.sound) {
+                playJumpSound();
+            }
+        }
+
+        // Воспроизведение звука прыжка (симуляция)
+        function playJumpSound() {
+            // В реальном проекте здесь был бы реальный звук
+            console.log("Jump sound played!");
+        }
+
+        // Воспроизведение звука счета (симуляция)
+        function playScoreSound() {
+            // В реальном проекте здесь был бы реальный звук
+            console.log("Score sound played!");
+        }
+
+        // Воспроизведение звука жемчуга (симуляция)
+        function playPearlSound() {
+            // В реальном проекте здесь был бы реальный звук
+            console.log("Pearl collected sound played!");
+        }
+
+        // Воспроизведение звука окончания игры (симуляция)
+        function playGameOverSound() {
+            // В реальном проекте здесь был бы реальный звук
+            console.log("Game over sound played!");
+        }
+
+        // Установка уровня сложности
+        function setDifficulty(level) {
+            game.difficulty = level;
+            
+            // Обновление параметров игры в зависимости от сложности
+            switch(level) {
+                case 'easy':
+                    game.speed = 3;
+                    game.gravity = 0.4;
+                    game.jumpStrength = -9;
+                    game.coralGap = 220;
+                    break;
+                case 'medium':
+                    game.speed = 4;
+                    game.gravity = 0.5;
+                    game.jumpStrength = -10;
+                    game.coralGap = 200;
+                    break;
+                case 'hard':
+                    game.speed = 5;
+                    game.gravity = 0.6;
+                    game.jumpStrength = -11;
+                    game.coralGap = 180;
+                    break;
+            }
+            
+            // Обновление активной кнопки
+            diffButtons.forEach(btn => {
+                if (btn.dataset.difficulty === level) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Переключение между вкладками
+        function switchTab(tabId) {
+            // Обновление активной кнопки навигации
+            navButtons.forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Показ активного контента
+            tabContents.forEach(content => {
+                if (content.id === `${tabId}Content`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        // Обработчики событий
+        canvas.addEventListener('click', jump);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+            
+            // Пауза по клавише P
+            if (e.code === 'KeyP') {
+                togglePause();
+            }
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (!game.running) {
+                initGame();
+            } else if (game.paused) {
+                game.paused = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Начать игру';
+            }
+        });
+
+        pauseBtn.addEventListener('click', togglePause);
+        
+        function togglePause() {
+            if (game.running && !game.paused) {
+                game.paused = true;
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i> Продолжить';
+            } else if (game.running && game.paused) {
+                game.paused = false;
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Пауза';
+            }
+        }
+
+        restartBtn.addEventListener('click', () => {
+            initGame();
+        });
+
+        soundBtn.addEventListener('click', () => {
+            game.sound = !game.sound;
+            soundBtn.innerHTML = game.sound 
+                ? '<i class="fas fa-volume-up"></i> Звук Вкл'
+                : '<i class="fas fa-volume-mute"></i> Звук Выкл';
+        });
+
+        modalPlayBtn.addEventListener('click', () => {
+            gameOverModal.style.display = 'none';
+            initGame();
+        });
+
+        modalRestartBtn.addEventListener('click', () => {
+            gameOverModal.style.display = 'none';
+            initGame();
+        });
+
+        diffButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                setDifficulty(btn.dataset.difficulty);
+            });
+        });
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
+
+        // Инициализация при загрузке страницы
+        window.addEventListener('load', () => {
+            updateScoreDisplay();
+            setDifficulty('easy');
+            createBubbles();
+            
+            // Начальное сообщение на canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 36px Fredoka One, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('РЫБКА ВПЕРЕД', canvas.width / 2, canvas.height / 2 - 50);
+            
+            ctx.font = '24px Rubik, sans-serif';
+            ctx.fillText('Нажмите "Начать игру" чтобы играть', canvas.width / 2, canvas.height / 2 + 20);
+            
+            ctx.font = '20px Rubik, sans-serif';
+            ctx.fillText('Кликайте или нажимайте ПРОБЕЛ чтобы плыть вверх', canvas.width / 2, canvas.height / 2 + 60);
+        });
+
+        // Адаптация размера canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            
+            // Сохраняем пропорции
+            const aspectRatio = 800 / 500;
+            const newWidth = Math.min(containerWidth - 40, 800);
+            const newHeight = newWidth / aspectRatio;
+            
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            
+            // Перерисовка если игра не запущена
+            if (!game.running) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${newWidth/25}px Fredoka One, cursive`;
+                ctx.textAlign = 'center';
+                ctx.fillText('РЫБКА ВПЕРЕД', canvas.width / 2, canvas.height / 2 - 50);
+                
+                ctx.font = `${newWidth/35}px Rubik, sans-serif`;
+                ctx.fillText('Нажмите "Начать игру" чтобы играть', canvas.width / 2, canvas.height / 2 + 20);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            createBubbles();
+        });
+        
+        // Создание начальных пузырьков
+        createBubbles();
+        resizeCanvas();
+    </script>
+</body>
+</html>
