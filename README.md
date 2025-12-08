@@ -1,4 +1,3 @@
-markdown
 # 🐠 Рыбка Вперед
 
 <div align="center">
