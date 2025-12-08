@@ -5,7 +5,7 @@ markdown
 
 ✨ **Увлекательная морская игра! Управляйте рыбкой через коралловый риф** ✨
 
-[![Играть онлайн](https://img.shields.io/badge/🎮_Играть_онлайн-FF6B6B?style=for-the-badge&logo=gamepad)](https://ваш-логин.github.io/rybka-vpered/)
+[![Играть онлайн](https://img.shields.io/badge/🎮_Играть_онлайн-FF6B6B?style=for-the-badge&logo=gamepad)](https://KatarinaBer.github.io/rybka-vpered/)
 [![Telegram](https://img.shields.io/badge/💬_Написать_разработчику-0088CC?style=for-the-badge&logo=telegram)](https://t.me/katarinaber)
 
 </div>
@@ -44,7 +44,7 @@ markdown
 3. Готово! 🎉
 
 **👨‍💻 Для разработчиков:**
-git clone https://github.com/ваш-логин/rybka-vpered.git
+git clone https://github.com/KatarinaBer/rybka-vpered.git
 cd rybka-vpered
 open index.html
 
